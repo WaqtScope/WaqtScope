@@ -4,7 +4,7 @@ include_once 'define.php';
 function getResource($resource){
     if($resource=="praytime.js") return file_get_contents($resource);
     if($resource=="jquery.js") return file_get_contents($resource);
-    if($resource=="tripsy.js") return file_get_contents('../js/jquery.tipsy.js');
+    if($resource=="tripsy.js") return file_get_contents('jquery.tipsy.js');
     if($resource=="jquery-cookie.js") return file_get_contents($resource);
     if($resource=="dateUtil.js") return file_get_contents($resource);
     if($resource=="waqtscope.js") return file_get_contents($resource);
