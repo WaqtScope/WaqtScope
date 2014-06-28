@@ -147,7 +147,7 @@ function genCityOptions(contryI){
     	var cityMenu=" ";
         cityMenu+="<option value='0' name ='Other' title='Other'>Other</option>"
 	for(i=LocData.ContryList[contryI][1];i<=LocData.ContryList[contryI][2];i++){
-	cityMenu+="<option value='"+i+"' name ='"+LocData.City[i][0]+"' title='"+LocData.City[i][0]+"'>"+LocData.City[i][0]+"</option>"
+	  cityMenu+="<option value='"+i+"' name ='"+LocData.City[i][0]+"' title='"+LocData.City[i][0]+"'>"+LocData.City[i][0]+"</option>"
 	}
 	return cityMenu;
 }
