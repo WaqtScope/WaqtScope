@@ -94,9 +94,12 @@ var Util = new function UUtil(){
 		this.signNum = function(num){
 				return (num <0) ? (num+'') : ('+'+num);
 		}
-		this.dig2f = function(num) {
-						return (num <10) ? '0'+ num : num;
-				}
+		this.dig2f = function (num) {
+		  if (num >= 10) return num;
+		  else if (num >= 0) return '0' + num;
+		  else if (num > -10) return '-0' + (-num);
+		  else return num;
+		}
 		this.year2f = function(year) {
 						return (1980 < year && year < 2080) ? "'"+this.dig2f(year%100) : year;
 				}
