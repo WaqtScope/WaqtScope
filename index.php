@@ -82,8 +82,8 @@ $params = array(
         <meta name="google-site-verification" content="xbuRNTGkdLHrkm1w367xiWE_yI6HJV3KZAl_BzQwiSY" />
         <title>WaqtScope | Salat and Sawm Time by nafSadh</title>
 
-        <link rel="icon" href="http://nafSadh.com/favicon.ico" type="image/x-icon" />
-        <link rel="shortcut icon" href="http://nafSadh.com/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="http://app.nafSadh.com/waqtscope/favicon.ico" type="image/x-icon" />
 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
