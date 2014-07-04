@@ -351,6 +351,7 @@ $params = array(
             });
 
             $("#DoneLDSBtn").click(function(){
+                CityMenuFn()
                 $("#locdataSet").hide();
                 $("#locdataSetShow").show();
                 $("#dateRangePanel").show();
