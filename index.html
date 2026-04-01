@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WaqtScope | Salat and Sawm Time by nafSadh</title>
+
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <link rel="stylesheet" type="text/css" media="screen" href="waqtscope.css">
+        <link rel="stylesheet" type="text/css" media="print" href="print.css">
+
+        <script src="praytime.js"></script>
+        <script src="jquery.js"></script>
+        <script src="jquery-cookie.js"></script>
+        <script src="jquery.tipsy.js"></script>
+        <script src="dateUtil.js"></script>
+        <script src="LocData.js"></script>
+        <script src="waqtscope.js"></script>
+        <script>
+        function getTitleFromKey(key, paramKey) {
+            if (paramKey == 'imsakM') {
+                if (key == 'Angle') return 'Sun angle below horizon';
+                if (key == 'FixedTime') return 'Minutes before Fajr';
+            }
+            if (paramKey == 'fajrM') {
+                if (key == 'Angle') return 'Sun angle below horizon';
+            }
+            if (paramKey == 'dhuhrA') {
+                if (key == 'FixedTime') return 'Minutes after noon';
+            }
+            if (paramKey == 'asrJ') {
+                if (key == 'Standard') return 'Shafi`i, Maliki, Ja`fari, Hanbali';
+                if (key == 'Hanafi') return 'Hanafi';
+            }
+            if (paramKey == 'maghribM') {
+                if (key == 'Angle') return 'Sun angle below horizon';
+                if (key == 'FixedTime') return 'twilight time, min after sunset';
+            }
+            if (paramKey == 'ishaM') {
+                if (key == 'Angle') return 'Sun angle below horizon';
+                if (key == 'FixedTime') return 'Minutes after Maghrib';
+            }
+            if (paramKey == 'midnightM') {
+                if (key == 'Standard') return 'Mid Sunset to Sunrise';
+                if (key == 'Jafari') return 'Mid Sunset to Fajr';
+            }
+            if (paramKey == 'highLatM') {
+                if (key == 'NightMiddle') return 'middle of night';
+                if (key == 'middle of night') return 'angle/60th of night';
+                if (key == 'OneSeventh') return '1/7th of night';
+                if (key == 'None') return 'No adjustment';
+            }
+            if (paramKey == 'timeFormats') {
+                if (key == '24h') return '24-hour format';
+                if (key == '12h') return '12-hour format';
+                if (key == '12hNS') return '12-hour format with no suffix';
+                if (key == 'Float') return 'floating point number';
+            }
+        }
+        </script>
+        <script src="waqtscope-init.js"></script>
+    </head>
+    <body class="ns7WS">
+
+    <div id='containerbox' align='center'>
+    <div id="container" >
+        <div id="containerTop">
+            <div id="CoverPage">
+                <div id="nafSadh">
+                    <div id="ns7box">
+                        <div id="ns7boxR"></div>
+                        <div id="ns7Text">a <a  href="http://nafSadh.com"><span>nafSadh</span></a> <a href ="http://nafSadh.com/Endeavor#WaqtScope">endeavor</a></div>
+                        <div id="ns7boxL"></div>
+                        <div id="ns7boxLink" class="noPrint">
+                            <div><a href="http://nafSadh.com/waqts/about">about</a></div>
+                        </div>
+                    </div>
+                </div>
+                <h1>WaqtScope</h1>
+                <h2>Waqt (<span lang="ar" xml:lang="ar" id="WaqtAr">&#x648;&#x642;&#x62A;</span>
+                    - time) of Sala&#x1E27; (<span lang="ar" id="SalatAr" xml:lang="ar"  >&#x0635;&#x0644;&#x0627;&#x0629;</span>&#x200E; - muslim prayer) and other relevant times, for places around the earth</h2>
+                <div id="currentState">
+                    <div id='Desc'>
+                        <span class="noPrint">Now displaying</span> time for
+                        <span class="TipsySpan" id="DescPlace" title="Use &#x201C;Location Settings&#x201D; on right to set your location"
+                              style="color: #07C;"></span> using <span class="TipsySpan" id="DescMethod" style="font-style: italic;"
+                                          title="Use &#x201C;Calculation Method Settings&#x201D; on left to change method"></span> method
+                    </div>
+                    <div id='Details'>
+                        <span class="TipsySpan-" title='Geographic coordinate of Location'>GeoLoc</span>: <span id="DescGeoLoc"></span>&nbsp;
+                        <span class="TipsySpan-" title='Altitude - height or elevation of place'>Alttd</span>: <span id="DescGeoAltd"></span> m
+                    </div>
+                </div>
+            </div>
+        <div id="huba"></div>
+        </div>
+        <div id="WaqtScopeMain"></div>
+        <div id="Legal">
+            <table id="legalT">
+                <tr><td id="legal1">
+            <a href=""><strong>WaqtScope</strong></a> &copy; <a href="http://nafSadh.com/Khan">
+                nafSadh</a> 2011<br />some rights reserved
+            </td>
+            <td id="legal2">
+            <a href="http://en.wikipedia.org/wiki/Salat_times" title="Salat times">Waqt</a> and other relevant times are calculated using
+            <a href="praytime.js" title="JavaScript Code of Waqt (Salat Time) Calculation">this source</a>,
+            written <a href="http://praytimes.org/wiki/Who_is_using_PrayTimes">based on</a>  <a href="http://praytimes.org/">PrayTimes.org</a>&#39;s <a href="http://praytimes.org/wiki/Code">code</a>
+            and is licensed under <a href="http://www.gnu.org/licenses/lgpl.html">GNU LGPL</a>.
+            They can be freely used in any website and application, provided that credit is given to the original work with
+            a link back to <a href="http://praytimes.org/" title="Not to nafSadh.com but to PrayTimes.org">PrayTimes.org</a><br />
+            Location Data (<span title="LocData.ContryList">&#8220;list of countries&#8221;</span>,
+            <span title="LocData.City">&#8220;latitude, longitude, altitude of major cities&#8221;</span>,
+            <span title="LocData.TZone">&#8220;list of time zones&#8221;</span>)
+            and associated <a href="LocData.js">source</a> used here is released
+            in Public Domain.<br />
+            Other parts of this page source is licensed under <a href="https://www.mozilla.org/MPL/MPL-1.1-annotated.html"
+            title="Mozilla Public License">MPL 1.1</a> while all contents produced is licensed
+            <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/"
+            title="Creative Commons Attribution-NonCommercial-ShareAlike 3.0">CC BY-NC-SA 3.0</a>,
+            which means <i>You are free to share and remix for any non-commercial purpose by attributing the
+            original author, <a href="http://nafSadh.com/Khan">nafSadh</a>.</i>
+            </td>
+            </tr>
+            <tr >
+            <td class="legal-L">v 1.0.0 beta</td>
+            <td class="legal-R">Please report bug via e-mail: nafSadh AT gmail DOT com</td>
+            </tr>
+            </table>
+        </div>
+    </div>
+    </div>
+    <!-- fixed -->
+    <div id="locdataSetPanel" class="rightTB">
+        <div id="locdataSetShow" class="showTB">Location<br/>Settings</div>
+        <div id="locdataSet" class="toolBox">
+            <div id="locdataSetHead" class="headTB">
+                <div id="locdataSetTitle" class="titleTB">Set Location Data</div><div id="LDSBox"></div>
+                <div id="locdataSetHide" class="hideTB"><div>hide <span>X</span></div></div>
+            </div>
+            <div id="locdata">
+                <form name="locform" >
+                    <div id="locZone" class="subBox">
+                        <div class="subBoxD">Place</div>
+                        <select class="uInput" id="contryMenu" name="contryMenu">
+                        </select>
+                        <select class="uInput" id="CityMenu" name="CityMenu">
+                        </select>
+                        <div id="locZoneALL">
+                        <table id="locZoneALL">
+                            <tbody>
+                                <tr>
+                                    <td>Latitude    <input class="uInput" id="Latitude-input"   type='number' min=0 max=120 maxlength=8 style='width:6em;' /></td>
+                                    <td>Longitude   <input class="uInput" id='Longitude-input'  type='number' min=0 max=120 maxlength=8 style='width:6em;' /></td>
+                                    <td>Altitude    <input class="uInput" id='Altitude-input'   type='number' min=0 max=120 maxlength=4 style='width:3em;' />m</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                            <input class="uInput" id="manualInput" name="manualInput" type="checkbox" checked='false'/>Set Manually
+                        </div>
+                    </div>
+                    <br/>
+                    <div id="timeZone" class="subBox">
+                        <div class="subBoxD">Time Zone</div>
+                        <select id="tZoneMenu" class="tZoneMenu" name="tZoneMenu">
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <input id="DoneLDSBtn" type="button" title="Done"  value="Done" class="btn">
+        </div>
+    </div>
+    <div id="dateRangePanel" class="rightTB">
+        <div id="dateRangeShow" class="showTB TipsySpan-e"
+             title="Set the range of how many days you want to see in this page. You can see thousands of days before and thousands after today">
+            Set Range<br/>of Days
+        </div>
+        <div id="dateRange" class="toolBox">
+            <div id="dateRangeHead" class="headTB">
+                <div id="dateRangeTitle" class="titleTB">Set Range of Days</div><div id="DRSBox"></div>
+                <div id="dateRangeHide" class="hideTB"><div>hide <span>X</span></div></div>
+            </div>
+            <div id="dateRange">
+                <form name="daterform" >
+                    <label for="preShow">Show previous  </label><input id="prevdays" name="prevdays" type='number' maxlength=4 value="0"  style='width:4em;'><label for="preDate"> days</label>
+                    <label for="nxtShow">and next       </label><input id="nextdays" name="nextdays" type='number' maxlength=4 value="30" style='width:4em;'><label for="nxtDate"> days</label>
+                </form>
+            </div>
+            <input id="ApplyDRSBtn" type="button" title="Apply"  value="Apply" class="btn">
+            <input id="DoneDRSBtn" type="button" title="Done"  value="Done" class="btn">
+            <input id="DefaultDRSBtn" type="button" title="Default" value="Default" class="btn">
+        </div>
+    </div>
+    <div id="settingsPanel" class="leftTB">
+        <div id="settingsShow" class="showTB">Calculation<br/>Method Settings</div>
+        <div id="settings" class="toolBox">
+            <div id="settingsHead" class="headTB">
+                <div id="settingsTitle" class="titleTB">Calculation Method Settings</div><div id="STTBox"></div>
+                <div id="settingsHide" class="hideTB"><div>hide <span>X</span></div></div>
+            </div>
+            <div id="method">
+                <form name="MethodF">
+                    <span id="methodLabel">Method: </span>
+                    <select id="CalcMethod" class="CalcMethod" name="CalcMethod">
+                        <option class='TipsySpan-wh' value='MWL' title='Muslim World League'>MWL</option>
+                        <option class='TipsySpan-wh' value='ISNA' title='Islamic Society of North America'>ISNA</option>
+                        <option class='TipsySpan-wh' value='Egypt' title='Egyptian General Authority of Survey'>Egypt</option>
+                        <option class='TipsySpan-wh' value='Makkah' title='Umm al-Qura University, Makkah'>Makkah</option>
+                        <option class='TipsySpan-wh' value='Karachi' title='University of Islamic Sciences, Karachi'>Karachi</option>
+                        <option class='TipsySpan-wh' value='Tehran' title='Institute of Geophysics, University of Tehran'>Tehran</option>
+                        <option class='TipsySpan-wh' value='Jafari' title='Shia Ithna Ashari (Ja`fari)'>Jafari</option>
+                        <option class='TipsySpan-wh' value='IFB' title='Islamic Foundation Bangladesh'>IFB</option>
+                        <option class='TipsySpan-wh' value='Custom' title='Custom'>Custom</option>
+                    </select>
+                    <span id="methodName">Select Calculation Method</span>
+                </form>
+            </div>
+            <form name="ParamsF" >
+                <table class="ParamaForm" border="0" cellpadding="0" cellspacing="0">
+                    <tr class='rt0'>
+                        <td class='ParamLabel'><span id='imsakM-Label'>Imsak calculation: </span></td>
+                        <td><select id='imsakM-Select' class='imsakM-Select' name='imsakM-Select'>
+                            <option value='Angle' title='Sun angle below horizon'>Angle</option>
+                            <option value='FixedTime' title='Minutes before Fajr'>FixedTime</option>
+                        </select></td>
+                        <td><input id='imsakM-input' type='number' min=0 max=120 maxlength=4 style='width:4.5em;' /></td>
+                    </tr>
+                    <tr class='rt1'>
+                        <td class='ParamLabel'><span id='fajrM-Label'>Fajr calculation: </span></td>
+                        <td><select id='fajrM-Select' class='fajrM-Select' name='fajrM-Select'>
+                            <option value='Angle' title='Sun angle below horizon'>Angle</option>
+                        </select></td>
+                        <td><input id='fajrM-input' type='number' min=0 max=120 maxlength=4 style='width:4.5em;' /></td>
+                    </tr>
+                    <tr class='rt0'>
+                        <td class='ParamLabel'><span id='dhuhrA-Label'>Adjust Dhuhr time: </span></td>
+                        <td><select id='dhuhrA-Select' class='dhuhrA-Select' name='dhuhrA-Select'>
+                            <option value='FixedTime' title='Minutes after noon'>FixedTime</option>
+                        </select></td>
+                        <td><input id='dhuhrA-input' type='number' min=0 max=120 maxlength=4 style='width:4.5em;' /></td>
+                    </tr>
+                    <tr class='rt1'>
+                        <td class='ParamLabel'><span id='asrJ-Label'>Asr Juristic Method: </span></td>
+                        <td><select id='asrJ-Select' class='asrJ-Select' name='asrJ-Select'>
+                            <option value='Standard' title='Shafi`i, Maliki, Ja`fari, Hanbali'>Standard</option>
+                            <option value='Hanafi' title='Hanafi'>Hanafi</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                    <tr class='rt0'>
+                        <td class='ParamLabel'><span id='maghribM-Label'>Maghrib calculation: </span></td>
+                        <td><select id='maghribM-Select' class='maghribM-Select' name='maghribM-Select'>
+                            <option value='Angle' title='Sun angle below horizon'>Angle</option>
+                            <option value='FixedTime' title='twilight time, min after sunset'>FixedTime</option>
+                        </select></td>
+                        <td><input id='maghribM-input' type='number' min=0 max=120 maxlength=4 style='width:4.5em;' /></td>
+                    </tr>
+                    <tr class='rt1'>
+                        <td class='ParamLabel'><span id='ishaM-Label'>Isha calculation: </span></td>
+                        <td><select id='ishaM-Select' class='ishaM-Select' name='ishaM-Select'>
+                            <option value='Angle' title='Sun angle below horizon'>Angle</option>
+                            <option value='FixedTime' title='Minutes after Maghrib'>FixedTime</option>
+                        </select></td>
+                        <td><input id='ishaM-input' type='number' min=0 max=120 maxlength=4 style='width:4.5em;' /></td>
+                    </tr>
+                    <tr class='rt0'>
+                        <td class='ParamLabel'><span id='midnightM-Label'>Midnight Mode: </span></td>
+                        <td><select id='midnightM-Select' class='midnightM-Select' name='midnightM-Select'>
+                            <option value='Standard' title='Mid Sunset to Sunrise'>Standard</option>
+                            <option value='Jafari' title='Mid Sunset to Fajr'>Jafari</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                    <tr class='rt1'>
+                        <td class='ParamLabel'><span id='highLatM-Label'>Higher Latitudes Adjustment: </span></td>
+                        <td><select id='highLatM-Select' class='highLatM-Select' name='highLatM-Select'>
+                            <option value='NightMiddle' title='middle of night'>NightMiddle</option>
+                            <option value='middle of night' title='angle/60th of night'>middle of night</option>
+                            <option value='OneSeventh' title='1/7th of night'>OneSeventh</option>
+                            <option value='None' title='No adjustment'>None</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                    <tr class='rt0'>
+                        <td class='ParamLabel'><span id='timeFormats-Label'>Time Format: </span></td>
+                        <td><select id='timeFormats-Select' class='timeFormats-Select' name='timeFormats-Select'>
+                            <option value='24h' title='24-hour format'>24h</option>
+                            <option value='12h' title='12-hour format'>12h</option>
+                            <option value='12hNS' title='12-hour format with no suffix'>12hNS</option>
+                            <option value='Float' title='floating point number'>Float</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </form>
+            <input id="ApplyBtn" type="button" title="Apply" value="Apply" class="btn">
+            <input id="DoneBtn" type="button" title="Done"  value="Done" class="btn">
+            <input id="DefaultBtn" type="button" title="Default"  value="Default" class="btn">
+        </div>
+    </div>
+    <div align="center">
+    <div id="Notices">
+        <div id="NoJS" class="NoticeBoard">
+            <div>
+            This page functions using JavaScript and all features are provided using JavaScript Only.<br/>
+            It seems that JavaScript is either not supported by or is disabled in your browser .<br/>
+            <b>Try turning on JavaScript on this Browser.</b>
+            nafSadh Khan is sorry that, no non-JavaSacript version is currently available. However you are welcome to make one!
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+    <div id="headerTop" align="center">
+        <div id="headFixTableHolder" style="width:80%;" class="topbar">
+            <table id="headFixTable" class='WaqtTable topbar'  width=100% align=center cellspacing="0">
+                <tr id="topbarRow">
+                    <th class='DateH'> Date </th>
+                    <th> End of Sahri</th>
+                    <th> Fajr       </th>
+                    <th> Sunrise    </th>
+                    <th> Dhuhr      </th>
+                    <th> Asr        </th>
+                    <th> Sunset     </th>
+                    <th> Maghrib    </th>
+                    <th> Isha       </th>
+                </tr>
+                <tr id="toDay"> </tr>
+            </table>
+        </div>
+    </div>
+    <div id="cp2DayDialog" align="center" style="position: fixed; width: 50%; top: 96px; left: 25%;">
+        <div id="cp2DayDialogBox" style="width: 480px; background: red; height: 48px; z-index: 10; position: relative;">
+            ?
+        </div>
+    </div>
+    <div id="footerBottom" align="center">
+        <div id="botmFixBox">
+        <table id="botmFixTable" class='bottom' width=100% align=center cellspacing="0">
+            <tr>
+                <td style="font:bold 12pt; padding: 0 32px 0 8px;">WaqtScope</td>
+                <td id="footerInfo" align="right">
+                </td>
+            </tr>
+        </table>
+        </div>
+    </div>
+    </body>
+</html>
