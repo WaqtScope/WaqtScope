@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaqtScope | Salat and Sawm Time</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="waqtscope.css">
+    <link rel="stylesheet" href="print.css" media="print">
+    <script src="praytime.js"></script>
+    <script src="jquery.js"></script>
+    <script src="jquery-cookie.js"></script>
+    <script src="jquery.tipsy.js"></script>
+    <script src="dateUtil.js"></script>
+    <script src="LocData.js"></script>
+    <script src="waqtscope.js"></script>
+    <script>
+    function getTitleFromKey(key, paramKey) {
+        var map = {
+            imsakM:    { Angle: 'Sun angle below horizon', FixedTime: 'Minutes before Fajr' },
+            fajrM:     { Angle: 'Sun angle below horizon' },
+            dhuhrA:    { FixedTime: 'Minutes after noon' },
+            asrJ:      { Standard: 'Shafi`i, Maliki, Ja`fari, Hanbali', Hanafi: 'Hanafi' },
+            maghribM:  { Angle: 'Sun angle below horizon', FixedTime: 'twilight time, min after sunset' },
+            ishaM:     { Angle: 'Sun angle below horizon', FixedTime: 'Minutes after Maghrib' },
+            midnightM: { Standard: 'Mid Sunset to Sunrise', Jafari: 'Mid Sunset to Fajr' },
+            highLatM:  { NightMiddle: 'middle of night', 'middle of night': 'angle/60th of night', OneSeventh: '1/7th of night', None: 'No adjustment' },
+            timeFormats: { '24h': '24-hour format', '12h': '12-hour format', '12hNS': '12-hour format with no suffix', Float: 'floating point number' }
+        };
+        return map[paramKey] && map[paramKey][key] || '';
+    }
+    </script>
+    <script src="waqtscope-init.js"></script>
+</head>
+<body class="ns7WS">
+
+<!-- ===== STICKY HEADER (today's times only) ===== -->
+<header id="headerTop">
+    <div class="header-inner">
+        <table id="headFixTable" class="WaqtTable topbar" cellspacing="0">
+            <colgroup>
+                <col class="col-date"><col class="col-time"><col class="col-time"><col class="col-time"><col class="col-time"><col class="col-time"><col class="col-time"><col class="col-time"><col class="col-time">
+            </colgroup>
+            <tr id="topbarRow">
+                <th class="DateH">Date</th>
+                <th>Sahri End</th>
+                <th>Fajr</th>
+                <th>Sunrise</th>
+                <th>Dhuhr</th>
+                <th>Asr</th>
+                <th>Sunset</th>
+                <th>Maghrib</th>
+                <th>Isha</th>
+            </tr>
+            <tr id="toDay"></tr>
+        </table>
+    </div>
+</header>
+
+<!-- ===== HERO / COVER ===== -->
+<div id="containerbox">
+<div id="container">
+    <div id="containerTop">
+        <div id="CoverPage">
+            <div class="hero-content">
+                <h1>WaqtScope</h1>
+                <h2>Waqt (<span lang="ar" id="WaqtAr">&#x648;&#x642;&#x62A;</span> - time)
+                    of Sala&#x1E27; (<span lang="ar" id="SalatAr">&#x0635;&#x0644;&#x0627;&#x0629;</span>&#x200E; - prayer)
+                    and other relevant times, for places around the earth</h2>
+                <div class="hero-meta noPrint">
+                    a <a href="http://nafSadh.com">nafSadh</a> endeavor
+                    &middot; <a href="http://nafSadh.com/waqts/about">about</a>
+                </div>
+            </div>
+
+            <div id="locationStatus"></div>
+
+            <div id="currentState">
+                <div id="Desc">
+                    <span class="noPrint">Displaying</span> prayer times for
+                    <span class="TipsySpan" id="DescPlace" title="Use Location Settings to change your location"></span>
+                    using <span class="TipsySpan" id="DescMethod" title="Use Calculation Method Settings to change method"></span> method
+                </div>
+                <div id="Details">
+                    <span title="Geographic coordinate">GeoLoc</span>: <span id="DescGeoLoc"></span>
+                    &nbsp;&middot;&nbsp;
+                    <span title="Altitude">Alt</span>: <span id="DescGeoAltd"></span> m
+                </div>
+            </div>
+
+            <!-- Inline controls bar -->
+            <div id="controlsBar" class="noPrint">
+                <button type="button" id="settingsToggle" class="ctrl-btn" title="Calculation Method Settings">Method Settings</button>
+                <button type="button" id="locationToggle" class="ctrl-btn" title="Location Settings">Location Settings</button>
+                <button type="button" id="rangeToggle" class="ctrl-btn" title="Set Range of Days">Day Range</button>
+            </div>
+        </div>
+        <div id="huba"></div>
+    </div>
+
+    <!-- ===== SETTINGS DRAWERS (slide down, inside page flow) ===== -->
+    <div id="settingsDrawer" class="drawer">
+        <div class="drawer-header">
+            <span class="drawer-title">Calculation Method Settings</span>
+            <button type="button" class="drawer-close" id="settingsClose">&times;</button>
+        </div>
+        <div class="drawer-body">
+            <div id="method">
+                <form name="MethodF">
+                    <label id="methodLabel">Method</label>
+                    <select id="CalcMethod" name="CalcMethod">
+                        <option value="MWL" title="Muslim World League">MWL</option>
+                        <option value="ISNA" title="Islamic Society of North America">ISNA</option>
+                        <option value="Egypt" title="Egyptian General Authority of Survey">Egypt</option>
+                        <option value="Makkah" title="Umm al-Qura University, Makkah">Makkah</option>
+                        <option value="Karachi" title="University of Islamic Sciences, Karachi">Karachi</option>
+                        <option value="Tehran" title="Institute of Geophysics, University of Tehran">Tehran</option>
+                        <option value="Jafari" title="Shia Ithna Ashari (Ja`fari)">Jafari</option>
+                        <option value="IFB" title="Islamic Foundation Bangladesh">IFB</option>
+                        <option value="Custom" title="Custom">Custom</option>
+                    </select>
+                    <span id="methodName"></span>
+                </form>
+            </div>
+            <form name="ParamsF">
+                <table class="ParamaForm" border="0" cellpadding="0" cellspacing="0">
+                    <tr class="rt0">
+                        <td class="ParamLabel"><span id="imsakM-Label">Imsak</span></td>
+                        <td><select id="imsakM-Select" name="imsakM-Select">
+                            <option value="Angle" title="Sun angle below horizon">Angle</option>
+                            <option value="FixedTime" title="Minutes before Fajr">FixedTime</option>
+                        </select></td>
+                        <td><input id="imsakM-input" type="number" min="0" max="120"></td>
+                    </tr>
+                    <tr class="rt1">
+                        <td class="ParamLabel"><span id="fajrM-Label">Fajr</span></td>
+                        <td><select id="fajrM-Select" name="fajrM-Select">
+                            <option value="Angle" title="Sun angle below horizon">Angle</option>
+                        </select></td>
+                        <td><input id="fajrM-input" type="number" min="0" max="120"></td>
+                    </tr>
+                    <tr class="rt0">
+                        <td class="ParamLabel"><span id="dhuhrA-Label">Dhuhr adj.</span></td>
+                        <td><select id="dhuhrA-Select" name="dhuhrA-Select">
+                            <option value="FixedTime" title="Minutes after noon">FixedTime</option>
+                        </select></td>
+                        <td><input id="dhuhrA-input" type="number" min="0" max="120"></td>
+                    </tr>
+                    <tr class="rt1">
+                        <td class="ParamLabel"><span id="asrJ-Label">Asr method</span></td>
+                        <td><select id="asrJ-Select" name="asrJ-Select">
+                            <option value="Standard" title="Shafi`i, Maliki, Ja`fari, Hanbali">Standard</option>
+                            <option value="Hanafi" title="Hanafi">Hanafi</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                    <tr class="rt0">
+                        <td class="ParamLabel"><span id="maghribM-Label">Maghrib</span></td>
+                        <td><select id="maghribM-Select" name="maghribM-Select">
+                            <option value="Angle" title="Sun angle below horizon">Angle</option>
+                            <option value="FixedTime" title="twilight time, min after sunset">FixedTime</option>
+                        </select></td>
+                        <td><input id="maghribM-input" type="number" min="0" max="120"></td>
+                    </tr>
+                    <tr class="rt1">
+                        <td class="ParamLabel"><span id="ishaM-Label">Isha</span></td>
+                        <td><select id="ishaM-Select" name="ishaM-Select">
+                            <option value="Angle" title="Sun angle below horizon">Angle</option>
+                            <option value="FixedTime" title="Minutes after Maghrib">FixedTime</option>
+                        </select></td>
+                        <td><input id="ishaM-input" type="number" min="0" max="120"></td>
+                    </tr>
+                    <tr class="rt0">
+                        <td class="ParamLabel"><span id="midnightM-Label">Midnight</span></td>
+                        <td><select id="midnightM-Select" name="midnightM-Select">
+                            <option value="Standard" title="Mid Sunset to Sunrise">Standard</option>
+                            <option value="Jafari" title="Mid Sunset to Fajr">Jafari</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                    <tr class="rt1">
+                        <td class="ParamLabel"><span id="highLatM-Label">High lat.</span></td>
+                        <td><select id="highLatM-Select" name="highLatM-Select">
+                            <option value="NightMiddle" title="middle of night">NightMiddle</option>
+                            <option value="middle of night" title="angle/60th of night">middle of night</option>
+                            <option value="OneSeventh" title="1/7th of night">OneSeventh</option>
+                            <option value="None" title="No adjustment">None</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                    <tr class="rt0">
+                        <td class="ParamLabel"><span id="timeFormats-Label">Format</span></td>
+                        <td><select id="timeFormats-Select" name="timeFormats-Select">
+                            <option value="24h" title="24-hour format">24h</option>
+                            <option value="12h" title="12-hour format">12h</option>
+                            <option value="12hNS" title="12-hour format with no suffix">12hNS</option>
+                            <option value="Float" title="floating point number">Float</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </form>
+            <div class="drawer-actions">
+                <button type="button" id="ApplyBtn" class="btn">Apply</button>
+                <button type="button" id="DoneBtn" class="btn btn-primary">Done</button>
+                <button type="button" id="DefaultBtn" class="btn">Default</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="locationDrawer" class="drawer">
+        <div class="drawer-header">
+            <span class="drawer-title">Location Settings</span>
+            <button type="button" class="drawer-close" id="locationClose">&times;</button>
+        </div>
+        <div class="drawer-body">
+            <form name="locform">
+                <div class="form-group">
+                    <label>Country</label>
+                    <select class="uInput full-width" id="contryMenu" name="contryMenu"></select>
+                </div>
+                <div class="form-group">
+                    <label>City</label>
+                    <select class="uInput full-width" id="CityMenu" name="CityMenu"></select>
+                </div>
+                <div id="locZoneALL" class="coord-grid">
+                    <div class="form-group">
+                        <label>Latitude</label>
+                        <input class="uInput" id="Latitude-input" type="number" min="-90" max="90" step="0.001">
+                    </div>
+                    <div class="form-group">
+                        <label>Longitude</label>
+                        <input class="uInput" id="Longitude-input" type="number" min="-180" max="180" step="0.001">
+                    </div>
+                    <div class="form-group">
+                        <label>Altitude (m)</label>
+                        <input class="uInput" id="Altitude-input" type="number" min="0" max="9000">
+                    </div>
+                </div>
+                <label class="checkbox-label">
+                    <input id="manualInput" name="manualInput" type="checkbox"> Set coordinates manually
+                </label>
+                <div class="form-group" style="margin-top: 12px;">
+                    <label>Time Zone</label>
+                    <select id="tZoneMenu" class="uInput full-width" name="tZoneMenu"></select>
+                </div>
+            </form>
+            <div class="drawer-actions">
+                <button type="button" id="detectLocationBtn" class="btn" title="Use GPS to detect your current location">Detect Location</button>
+                <button type="button" id="DoneLDSBtn" class="btn btn-primary">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rangeDrawer" class="drawer">
+        <div class="drawer-header">
+            <span class="drawer-title">Day Range</span>
+            <button type="button" class="drawer-close" id="rangeClose">&times;</button>
+        </div>
+        <div class="drawer-body">
+            <form name="daterform" class="range-form">
+                <div class="form-group">
+                    <label>Previous days</label>
+                    <input id="prevdays" name="prevdays" type="number" min="0" max="9999" value="0" class="uInput">
+                </div>
+                <div class="form-group">
+                    <label>Next days</label>
+                    <input id="nextdays" name="nextdays" type="number" min="0" max="9999" value="30" class="uInput">
+                </div>
+            </form>
+            <div class="drawer-actions">
+                <button type="button" id="ApplyDRSBtn" class="btn">Apply</button>
+                <button type="button" id="DoneDRSBtn" class="btn btn-primary">Done</button>
+                <button type="button" id="DefaultDRSBtn" class="btn">Default</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PRAYER TIMES TABLE ===== -->
+    <div id="WaqtScopeMain"></div>
+
+    <!-- ===== LEGAL ===== -->
+    <footer id="Legal">
+        <div class="legal-content">
+            <div class="legal-brand">
+                <strong>WaqtScope</strong> &copy; <a href="http://nafSadh.com/Khan">nafSadh</a> 2011
+                <br><span class="legal-version">v 1.0.0 beta</span>
+            </div>
+            <div class="legal-text">
+                Prayer times calculated using <a href="praytime.js">this source</a>,
+                based on <a href="http://praytimes.org/">PrayTimes.org</a> code,
+                licensed under <a href="http://www.gnu.org/licenses/lgpl.html">GNU LGPL</a>.
+                Location data released in Public Domain.
+                Page source licensed under <a href="https://www.mozilla.org/MPL/MPL-1.1-annotated.html">MPL 1.1</a>;
+                output licensed <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>.
+            </div>
+        </div>
+    </footer>
+</div>
+</div>
+
+<!-- ===== NO JS WARNING ===== -->
+<div id="Notices">
+    <div id="NoJS" class="NoticeBoard">
+        <p>This page requires JavaScript to function. Please enable JavaScript in your browser.</p>
+    </div>
+</div>
+
+<!-- ===== HIDDEN legacy elements needed by JS ===== -->
+<div id="cp2DayDialog" style="display:none;">
+    <div id="cp2DayDialogBox"></div>
+</div>
+
+<!-- Legacy panel IDs (hidden, needed so jqEvents() doesn't error) -->
+<div id="settingsPanel" class="leftTB" style="display:none;">
+    <div id="settingsShow" class="showTB"></div>
+    <div id="settings" class="toolBox">
+        <div id="settingsHide"></div>
+    </div>
+</div>
+<div id="locdataSetPanel" class="rightTB" style="display:none;">
+    <div id="locdataSetShow" class="showTB"></div>
+    <div id="locdataSet" class="toolBox">
+        <div id="locdataSetHide"></div>
+    </div>
+</div>
+<div id="dateRangePanel" class="rightTB" style="display:none;">
+    <div id="dateRangeShow" class="showTB"></div>
+    <div id="dateRange" class="toolBox">
+        <div id="dateRangeHide"></div>
+    </div>
+</div>
+
+<!-- ===== STICKY FOOTER ===== -->
+<div id="footerBottom">
+    <div id="botmFixBox">
+        <div id="botmFixTable">
+            <span class="footer-brand">WaqtScope</span>
+            <span id="footerInfo"></span>
+        </div>
+    </div>
+</div>
+<!-- Hidden element for stickyLocation updates from waqtscope.js -->
+<span id="stickyLocation" style="display:none;"></span>
+
+<script>
+$(document).ready(function(){
+    // Open a drawer and scroll to it
+    function openAndScroll(show, hide1, hide2) {
+        $(hide1 + ',' + hide2).slideUp(150);
+        var $el = $(show);
+        if ($el.is(':visible')) {
+            $el.slideUp(150);
+        } else {
+            $el.slideDown(150, function(){
+                window.scrollTo(0, Math.max(0, $el.offset().top - 60));
+            });
+        }
+    }
+
+    // In-page control buttons
+    $('#settingsToggle').click(function(){ openAndScroll('#settingsDrawer', '#locationDrawer', '#rangeDrawer'); });
+    $('#locationToggle').click(function(){ openAndScroll('#locationDrawer', '#settingsDrawer', '#rangeDrawer'); });
+    $('#rangeToggle').click(function(){ openAndScroll('#rangeDrawer', '#settingsDrawer', '#locationDrawer'); });
+
+    // Footer bar clicks — always open (not toggle), scroll to drawer
+    function forceOpen(show, hide1, hide2) {
+        $(hide1 + ',' + hide2).slideUp(150);
+        $(show).slideDown(150, function(){
+            window.scrollTo(0, Math.max(0, $(show).offset().top - 60));
+        });
+    }
+    $('.foot-loc').live('click', function(){
+        forceOpen('#locationDrawer', '#settingsDrawer', '#rangeDrawer');
+    });
+    $('.foot-method').live('click', function(){
+        forceOpen('#settingsDrawer', '#locationDrawer', '#rangeDrawer');
+    });
+
+    // Close buttons
+    $('#settingsClose').click(function(){ $('#settingsDrawer').slideUp(150); });
+    $('#locationClose').click(function(){ $('#locationDrawer').slideUp(150); });
+    $('#rangeClose').click(function(){ $('#rangeDrawer').slideUp(150); });
+
+    // Done buttons close drawers
+    $('#DoneBtn').click(function(){ $('#settingsDrawer').slideUp(150); });
+    $('#DoneLDSBtn').click(function(){ $('#locationDrawer').slideUp(150); });
+    $('#DoneDRSBtn').click(function(){ $('#rangeDrawer').slideUp(150); });
+
+    // Detect Location button
+    $('#detectLocationBtn').click(function(){
+        var $btn = $(this);
+        $btn.text('Detecting...').prop('disabled', true);
+        autoDetectLocation();
+        // Reset button after a delay (geolocation is async)
+        setTimeout(function(){ $btn.text('Detect Location').prop('disabled', false); }, 5000);
+    });
+});
+</script>
+</body>
+</html>
